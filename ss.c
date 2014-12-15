@@ -6,6 +6,7 @@
 
 #define RED "\x1b[31m"
 #define RESET "\x1b[0m"
+#define GREEN "\x1b[32m"
 
 int reader(char *filename, char *str, struct dirent *dir, char *path) {
 	FILE *fp;
@@ -14,7 +15,8 @@ int reader(char *filename, char *str, struct dirent *dir, char *path) {
 	int trigger = 0;
 	char temp[512];
 	char *fullname;
-	char *match;
+	char *match, *token;
+	int counter = 0;
 
 	asprintf(&fullname,"%s/%s",path,filename);
 	
@@ -35,22 +37,29 @@ int reader(char *filename, char *str, struct dirent *dir, char *path) {
 	}
 
 	while(fgets(temp, 512, fp) != NULL) {
-		if((strstr(temp, str)) != NULL) {
-			temp[strlen(temp) - 1];
-			//printf("A match found on line: %d\n", line_num);
+		if((strstr(temp, str)) != NULL & counter < 6) {
+			counter++;
+			temp[strlen(temp) - 1] = '\0';
 			if (trigger == 0) {
 				printf(RED "%s\n" RESET,fullname);
 			}
+			if (counter == 6){
+				printf("--more line matches\n");				
+				break;
+			}
 			if (strlen(temp) > 50) {
-				//~ match = strstr(temp,str);
-				printf("--%d\t...\n" , line_num);
+				match = strstr(temp,str);
+				match[49]='\0';
+				//token = strtok(match,str);
+				printf("--%d\t...%s...\n" , line_num,match);
 			}
 			else {
+				//token = strtok(temp,str);
 				printf("--%d\t%s\n" , line_num,temp);
 			}
 			find_result++;
 			trigger = 1;
-		}
+		}	
 		line_num++;
 	}
 
